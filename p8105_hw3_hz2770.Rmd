@@ -17,6 +17,8 @@ library(p8105.datasets)
 data("instacart")
 ```
 
+
+
 1. Now, we want to see how many aisles are there in the dataset "instacart" and which aisle has the most orders.
 
 ```{r}
@@ -57,76 +59,42 @@ filter_sum_by_aisle %>%
 Then we got that there are 39 aisles in total have more than 10000 items sold, among which, "fresh fruits" and "fresh vegetables" have the most sold.
 
 
+
 3. Create a table to show the top three items in aisle "baking ingredients", "dog food care" and "packaged vegetables fruits".
 ```{r}
-# first filter the top three items for each of the three desired aisles.
-
-bak_ingr_rank = 
-  instacart %>% 
-  filter(aisle == "baking ingredients") %>%
-  group_by(product_name) %>%
+final_rank =
+  instacart %>%
+  filter(
+    aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")
+    ) %>% 
+  group_by(aisle, product_name) %>% 
   summarise(n_obs = n()) %>% 
   filter(min_rank(desc(n_obs)) < 4) %>% 
-  mutate(aisle ="baking ingredients",
-         rank_in_aisle = min_rank(desc(n_obs))) %>%
-  arrange(desc(n_obs))
-
-bak_ingr_rank
-
-dog_food_rank = 
-  instacart %>% 
-  filter(aisle == "dog food care") %>%
-  group_by(product_name) %>%
-  summarise(n_obs = n()) %>% 
-  filter(min_rank(desc(n_obs)) < 4) %>% 
-  mutate(aisle = "dog food care",
-         rank_in_aisle = min_rank(desc(n_obs))) %>%
-  arrange(desc(n_obs))
-
-dog_food_rank
-
-pack_veg_rank = 
-  instacart %>% 
-  filter(aisle == "packaged vegetables fruits") %>%
-  group_by(product_name) %>%
-  summarise(n_obs = n()) %>% 
-  filter(min_rank(desc(n_obs)) < 4) %>% 
-  mutate(aisle ="packaged vegetables fruits",
-         rank_in_aisle = min_rank(desc(n_obs))) %>%
-  arrange(desc(n_obs))
-
-pack_veg_rank
-
-# Bind all the three tables into one and reorder it to make it clearer.
-final_rank = 
-  bind_rows(bak_ingr_rank, dog_food_rank, pack_veg_rank) %>% 
+  mutate(
+    rank_in_aisle = min_rank(desc(n_obs))
+    ) %>%
+  arrange(rank_in_aisle) %>%
   select(aisle, rank_in_aisle, product_name, n_obs)
-
+  
 final_rank
 ```
 
 
-Try to find is there a easier way to do this. Then I found I can just use group_by() to do this.
+
+4. Now, show the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week.
+
 ```{r}
-final_rank_new =
+apple_and_coffee = 
   instacart %>%
-  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
-  group_by(aisle, product_name) %>% 
-  summarise(n_obs = n()) %>% 
-  filter(min_rank(desc(n_obs)) < 4) %>% 
-  mutate(rank_in_aisle = min_rank(desc(n_obs))) %>%
-  arrange(rank_in_aisle) %>%
-  select(aisle, rank_in_aisle, product_name, n_obs)
-  
-final_rank_new
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>%  
+  summarise(
+    mean_hour_of_day = mean(order_hour_of_day, na.rm = TRUE)
+    ) %>% 
+  pivot_wider( 
+    names_from = "order_dow", 
+    values_from = "mean_hour_of_day"
+    ) 
+
+apple_and_coffee
 ```
-
-
-
-4. Now, we want to show the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week.
-
-```{r}
-#instacart %>% 
-  #group_by(product_name)
-```
-
