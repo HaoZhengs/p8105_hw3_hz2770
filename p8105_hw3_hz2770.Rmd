@@ -8,6 +8,7 @@ output: github_document
 library(tidyverse)
 ```
 
+
 ## Problem 1
 
 First, load the "instacart" dataset.
@@ -15,15 +16,42 @@ First, load the "instacart" dataset.
 library(p8105.datasets)
 data("instacart")
 
+# Create a dataframe for instacart
 instacart_df = 
   instacart %>% 
   select(order_id, everything())
 ```
 
+1) Now, we want to see how many aisles are there in the dataset "instacart" and which aisle has the most orders.
 
 ```{r}
-instacart_df %>% 
+sum_by_aisle = 
+  instacart_df %>% 
   group_by(aisle) %>% 
   summarise(n_obs = n())
+
+sum_by_aisle
+
+sum_by_aisle %>% 
+  filter(min_rank(desc(n_obs))< 2)
 ```
 
+There are `r 134` aisles in total, and the most items are ordered from the aisle "fresh vegetables", which is `r 150609` in total.
+
+
+
+2) Then we try to show the number of items sold in each aisle with a number over 10000 via a scatter plot.
+```{r}
+sum_by_aisle %>% 
+  filter(n_obs > 10000) %>%
+  ggplot(aes(x = aisle, y = n_obs)) +
+  geom_point() +
+  labs(x = NULL, y = NULL) +
+  scale_y_continuous(
+    breaks = c(20000, 60000, 100000, 140000, 180000),
+    labels = c("20000", "60000", "100000", "140000", "180000")
+  ) +
+  theme(axis.text.x = element_text(angle=90, hjust=1))
+```
+
+3) 
