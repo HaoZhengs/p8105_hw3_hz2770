@@ -79,7 +79,7 @@ dog_food_rank =
   group_by(product_name) %>%
   summarise(n_obs = n()) %>% 
   filter(min_rank(desc(n_obs)) < 4) %>% 
-  mutate(aisle ="dog food care",
+  mutate(aisle = "dog food care",
          rank_in_aisle = min_rank(desc(n_obs))) %>%
   arrange(desc(n_obs))
 
@@ -103,5 +103,30 @@ final_rank =
   select(aisle, rank_in_aisle, product_name, n_obs)
 
 final_rank
+```
+
+
+Try to find is there a easier way to do this. Then I found I can just use group_by() to do this.
+```{r}
+final_rank_new =
+  instacart %>%
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  group_by(aisle, product_name) %>% 
+  summarise(n_obs = n()) %>% 
+  filter(min_rank(desc(n_obs)) < 4) %>% 
+  mutate(rank_in_aisle = min_rank(desc(n_obs))) %>%
+  arrange(rank_in_aisle) %>%
+  select(aisle, rank_in_aisle, product_name, n_obs)
+  
+final_rank_new
+```
+
+
+
+4. Now, we want to show the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week.
+
+```{r}
+#instacart %>% 
+  #group_by(product_name)
 ```
 
