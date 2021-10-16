@@ -18,6 +18,8 @@ data("instacart")
 ```
 
 
+Description of the dataset: The dataset "instacart" contains `rnrows = 1,384,617`, `rncols = 15`. There are 4 character variables: eval_set, product_name, aisle and department. All the other variables are integer variables.
+
 
 1. Now, we want to see how many aisles are there in the dataset "instacart" and which aisle has the most orders.
 
