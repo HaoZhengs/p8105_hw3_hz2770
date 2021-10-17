@@ -74,8 +74,8 @@ final_rank =
   filter(min_rank(desc(n_obs)) < 4) %>% 
   mutate(
     rank_in_aisle = min_rank(desc(n_obs))
-    ) %>%
-  arrange(rank_in_aisle) %>%
+    ) %>% 
+  arrange(aisle, rank_in_aisle) %>% 
   select(aisle, rank_in_aisle, product_name, n_obs)
   
 final_rank
@@ -100,3 +100,14 @@ apple_and_coffee =
 
 apple_and_coffee
 ```
+
+
+
+## Problem 2
+
+First, let us load the dataset BRFSS from the P8105 datasets.
+```{r}
+library(p8105.datasets)
+data("BRFSS")
+```
+
