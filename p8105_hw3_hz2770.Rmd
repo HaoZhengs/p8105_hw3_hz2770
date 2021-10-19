@@ -6,6 +6,7 @@ output: github_document
 ---
 ```{r}
 library(tidyverse)
+library(patchwork)
 ```
 
 
@@ -40,6 +41,16 @@ There are `r 134` aisles in total, and the most items are ordered from the aisle
 
 
 2. Then we try to show the number of items sold in each aisle with a number over 10000 via a scatter plot.
+
+# ```{r}
+# instacart %>% 
+#   count(aisle) %>% 
+#   filter(n > 10000) %>% 
+#   ggplot(aes(y = n, color = aisle)) +
+#   geom_boxplot()
+# ```
+
+
 ```{r}
 filter_sum_by_aisle = 
   sum_by_aisle %>% 
@@ -112,30 +123,83 @@ data("brfss_smart2010")
 head(brfss_smart2010)
 ```
 
-<!-- First, do some data cleaning. -->
-<!-- ```{r} -->
-<!-- brfss_smart2010 = -->
-<!--   janitor::clean_names(brfss_smart2010) %>% -->
-<!--   filter(topic == "Overall Health", -->
-<!--          response %in% c("Excellent", "Very good", "Good", "Fair", "Poor")) %>% -->
-<!--   mutate( -->
-<!--     as.factor(response, levels = (display_oreder)) -->
-<!--     ) -->
+First, do some data cleaning.
+```{r}
+brfss_smart2010 =
+  brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health",
+         response %in% c("Excellent", "Very good", "Good", "Fair", "Poor")) %>%
+  mutate(
+    response = factor(response, level = c("Poor", "Fair", "Good", "Very good", "Excellent")),
+    response = as.numeric(response)
+    )
+  # arrange(response)
 
-<!-- head(brfss_smart2010) -->
-<!-- ``` -->
+head(brfss_smart2010)
+```
 
-<!-- 1. Find the states that were observed at 7 or more locations in 2002. -->
-<!-- ```{r} -->
-<!-- df = -->
-<!-- brfss_smart2010 %>% -->
-<!--   filter(year == 2002) %>% -->
-<!--   group_by(locationabbr) %>% -->
-<!--   filter(count(distinct(locationdesc)) >= 7) -->
+1. Find the states that were observed at 7 or more locations in 2002.
+```{r}
+brfss_smart2010 %>%
+  filter(year == 2002) %>%
+  distinct(locationdesc, locationabbr) %>%
+  group_by(locationabbr) %>%
+  summarize(location_num = n()) %>% 
+  filter(location_num >= 7)
+```
+There were 6 states observed at 7 or more locations in 2002, including CT, FL, MA, NC, NJ and PA.
 
-<!-- df -->
-<!-- ``` -->
 
+Then do the similar process for year 2010.
+```{r}
+brfss_smart2010 %>%
+  filter(year == 2010) %>%
+  distinct(locationdesc, locationabbr) %>% 
+  group_by(locationabbr) %>%
+  summarize(location_num = n()) %>% 
+  filter(location_num >= 7)
+```
+There were 14 states observed at 7 or more locations in 2010, including CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX and WA.
+
+
+2. Construct the dataset and make the "spagetti" plot.
+# ```{r}
+# brfss_df = 
+#   brfss_smart2010 %>%
+#   filter(response == 5) %>%
+#   group_by(locationabbr) %>%
+#   mutate(mean_data_value = mean(data_value)) %>%
+#   select(year, locationabbr, mean_data_value) %>%
+#   ggplot(
+#     aes(x = year, y = mean_data_value, color = locationabbr)
+#     ) + 
+#   geom_line()
+#   
+# ```
+
+
+3. Make the two-panel graph to show the required distribution.
+```{r}
+brfss_2006 = 
+  brfss_smart2010 %>% 
+  filter(year == 2006 & locationabbr == "NY") %>% 
+  ggplot(
+    aes(x = response,y = data_value, color = response)
+    )+
+  geom_point()
+
+brfss_2010 = 
+  brfss_smart2010 %>% 
+  filter(year == 2010 & locationabbr == "NY") %>% 
+  ggplot(
+    aes(x = response,y = data_value, color = response)
+    )+
+  geom_point()
+
+brfss_2006 + brfss_2010
+```
+Now we get the plot for the response in NY in year 2006 and 2010. From the plot, we can see that the results are quite similar.
 
 ## Problem 3
 
