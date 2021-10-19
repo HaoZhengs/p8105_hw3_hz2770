@@ -180,8 +180,14 @@ accel_data %>%
     sum_activity = sum(activity)
   )
 ```
-The sum of activities for each day seems to increase throughoit the week from Monday to Sunday.
+The sum of activities for each day seems to increase throughout the week from Monday to Sunday.
 
 
+3. Make a plot to show the activity counts through the day everyday, and use different colors to indicate what day is it.
+```{r}
+accel_data %>% 
+  ggplot(aes(x = minutes, y = activity, color = day)) +
+  geom_point()
+```
 
-
+From this graph, the activity counts increase slightly and then decrease slightly throughout the day. It has four obvious peak at around 400, 650, 1000 and 1250 minutes, and the peak occurs mainly at the end of each week(Thursday, Friday, Saturday and Sunday).
