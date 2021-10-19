@@ -154,7 +154,15 @@ accel_data =
   janitor::clean_names() %>% 
   mutate(
     day_type = ifelse(day %in% c("Saturday", "Sunday"), "Weekend", "weekday")
-  )
+  ) %>% 
+  mutate_if(is.double, as.integer)
+
+accel_data
+
+```
+The accel_data contains 1444 variables and 35 observations. The variables are week, day_id, day, activity for 1440 minutes through the day and day_type. All the variables are integers apart from week, day_id, day and day_type.
+
+```{r}
 
 ```
 
