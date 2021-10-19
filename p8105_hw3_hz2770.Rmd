@@ -139,6 +139,7 @@ head(brfss_smart2010)
 
 ## Problem 3
 
+1. Load and clean the accel_data.
 ```{r}
 getwd()
 
@@ -152,17 +153,35 @@ Now, we first clean the data as desired.
 accel_data =
   accel_data %>% 
   janitor::clean_names() %>% 
-  mutate(
-    day_type = ifelse(day %in% c("Saturday", "Sunday"), "Weekend", "weekday")
+  pivot_longer(
+    activity_1:activity_1440,
+    names_to = "minutes",
+    names_prefix = "activity_",
+    values_to = "activity"
   ) %>% 
-  mutate_if(is.double, as.integer)
+  mutate(
+    day_type = ifelse(day %in% c("Saturday", "Sunday"), "Weekend", "weekday"),
+    week = as.integer(week),
+    day_id = as.integer(day_id),
+    minutes = as.integer(minutes)
+    )
 
 accel_data
 
 ```
-The accel_data contains 1444 variables and 35 observations. The variables are week, day_id, day, activity for 1440 minutes through the day and day_type. All the variables are integers apart from week, day_id, day and day_type.
+The cleaned accel_data contains 6 variables and 50400 observations. The variables are the week, day_id, day and day type for the day, and the minutes, activity for the minute. All the variables are numeric apart from day and day_type.
 
+
+2. Aggredate the total activities for each day.
 ```{r}
-
+accel_data %>% 
+  group_by(week, day) %>% 
+  summarize(
+    sum_activity = sum(activity)
+  )
 ```
+The sum of activities for each day seems to increase throughoit the week from Monday to Sunday.
+
+
+
 
