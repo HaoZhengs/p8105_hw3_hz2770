@@ -19,7 +19,7 @@ data("instacart")
 ```
 
 
-Description of the dataset: The dataset "instacart" contains `rnrows = 1,384,617`, `rncols = 15`. There are 4 character variables: eval_set, product_name, aisle and department. All the other variables are integer variables.
+Description of the dataset: The dataset "instacart" contains `nrows = 1,384,617`, `ncols = 15`. There are 4 character variables: eval_set, product_name, aisle and department. All the other variables are integer variables.
 
 
 1. Now, we want to see how many aisles are there in the dataset "instacart" and which aisle has the most orders.
@@ -36,20 +36,11 @@ sum_by_aisle %>%
   filter(min_rank(desc(n_obs))< 2)
 ```
 
-There are `r 134` aisles in total, and the most items are ordered from the aisle "fresh vegetables", which is `r 150609` in total.
+There are 134 aisles in total, and the most items are ordered from the aisle "fresh vegetables", which is 150609 in total.
 
 
 
 2. Then we try to show the number of items sold in each aisle with a number over 10000 via a scatter plot.
-
-# ```{r}
-# instacart %>% 
-#   count(aisle) %>% 
-#   filter(n > 10000) %>% 
-#   ggplot(aes(y = n, color = aisle)) +
-#   geom_boxplot()
-# ```
-
 
 ```{r}
 filter_sum_by_aisle = 
@@ -81,14 +72,15 @@ final_rank =
     aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")
     ) %>% 
   group_by(aisle, product_name) %>% 
-  summarise(n_obs = n()) %>% 
-  filter(min_rank(desc(n_obs)) < 4) %>% 
+  summarise(num_ordered = n()) %>% 
+  filter(min_rank(desc(num_ordered)) < 4) %>% 
   mutate(
-    rank_in_aisle = min_rank(desc(n_obs))
+    rank_in_aisle = min_rank(desc(num_ordered))
     ) %>% 
   arrange(aisle, rank_in_aisle) %>% 
-  select(aisle, rank_in_aisle, product_name, n_obs)
-  
+  select(aisle, rank_in_aisle, product_name, num_ordered) %>% 
+  knitr::kable()
+
 final_rank
 ```
 
@@ -104,10 +96,11 @@ apple_and_coffee =
   summarise(
     mean_hour_of_day = mean(order_hour_of_day, na.rm = TRUE)
     ) %>% 
-  pivot_wider( 
-    names_from = "order_dow", 
+  pivot_wider(
+    names_from = "order_dow",
     values_from = "mean_hour_of_day"
-    ) 
+    ) %>% 
+  knitr::kable()
 
 apple_and_coffee
 ```
@@ -164,19 +157,20 @@ There were 14 states observed at 7 or more locations in 2010, including CA, CO, 
 
 
 2. Construct the dataset and make the "spagetti" plot.
-# ```{r}
-# brfss_df = 
-#   brfss_smart2010 %>%
-#   filter(response == 5) %>%
-#   group_by(locationabbr) %>%
-#   mutate(mean_data_value = mean(data_value)) %>%
-#   select(year, locationabbr, mean_data_value) %>%
-#   ggplot(
-#     aes(x = year, y = mean_data_value, color = locationabbr)
-#     ) + 
-#   geom_line()
-#   
-# ```
+```{r}
+brfss_df =
+  brfss_smart2010 %>%
+  filter(response == 5) %>%
+  group_by(year, locationabbr) %>%
+  mutate(mean_data_value = mean(data_value)) %>%
+  select(year, locationabbr, mean_data_value) %>%
+  distinct(mean_data_value) %>% 
+  ggplot(
+    aes(x = year, y = mean_data_value, group = locationabbr, color = locationabbr)
+    ) + 
+  geom_line()
+
+```
 
 
 3. Make the two-panel graph to show the required distribution.
