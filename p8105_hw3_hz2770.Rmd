@@ -91,13 +91,15 @@ final_rank
 ```{r}
 apple_and_coffee = 
   instacart %>%
+  mutate(day = order_dow +1) %>%
+  mutate(day_of_week = lubridate::wday(day, label = TRUE, locale = "English_United States")) %>%
   filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
-  group_by(product_name, order_dow) %>%  
+  group_by(product_name, day_of_week) %>%  
   summarise(
     mean_hour_of_day = mean(order_hour_of_day, na.rm = TRUE)
     ) %>% 
   pivot_wider(
-    names_from = "order_dow",
+    names_from = "day_of_week",
     values_from = "mean_hour_of_day"
     ) %>% 
   knitr::kable()
@@ -156,19 +158,25 @@ brfss_smart2010 %>%
 There were 14 states observed at 7 or more locations in 2010, including CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX and WA.
 
 
-2. Construct the dataset and make the "spagetti" plot.
+2. Construct the dataset and make the "spagetti" plot for mean data value for the excellent response through years for different state.
 ```{r}
 brfss_df =
   brfss_smart2010 %>%
   filter(response == 5) %>%
-  group_by(year, locationabbr) %>%
+  group_by(locationabbr, year) %>%
   mutate(mean_data_value = mean(data_value)) %>%
   select(year, locationabbr, mean_data_value) %>%
-  distinct(mean_data_value) %>% 
+  distinct()
+
+brfss_df %>%   
   ggplot(
-    aes(x = year, y = mean_data_value, group = locationabbr, color = locationabbr)
+    aes(x = year, y = mean_data_value)
     ) + 
-  geom_line()
+  geom_line(aes(group = locationabbr, color = locationabbr)) +
+  labs(
+    title = "Mean data value among different states",
+    x = "Year",
+    y = "Mean Data Value") 
 
 ```
 
@@ -179,9 +187,9 @@ brfss_2006 =
   brfss_smart2010 %>% 
   filter(year == 2006 & locationabbr == "NY") %>% 
   ggplot(
-    aes(x = response,y = data_value, color = response)
-    )+
-  geom_point()
+    aes(x = response, fill = response)
+    ) +
+  geom_density(alpha = .4, adjust = .5, color = "blue")
 
 brfss_2010 = 
   brfss_smart2010 %>% 
